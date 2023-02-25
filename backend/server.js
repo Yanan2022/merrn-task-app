@@ -1,6 +1,18 @@
+const dotenv = require("dotenv").config();
 const express = require("express");
+const connectDB = require("./config/connectDB");
+const mongoose = require("mongoose");
+const Task = require("./model/taskModel")
+const taskRoutes = require("./routes/taskRoute")
 
 const app = express();
+
+//Middleware
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(taskRoutes);
+
+
 
 //les routes
 app.get('/', (req, res)=>{
@@ -8,7 +20,16 @@ app.get('/', (req, res)=>{
 })
 
 
+
 const PORT = process.env.PORT || 5000
-app.listen(PORT, ()=>{
-    console.log(`Server running on ${PORT}`);
-})
+
+mongoose
+    .set("strictQuery", false)
+    .connect(process.env.MONGO_URI)
+    .then(()=>{
+        app.listen(PORT, ()=>{
+            console.log(`Server running on ${PORT}`);
+        })
+    })
+    .catch((err)=>console.log(err))
+
